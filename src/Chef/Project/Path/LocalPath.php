@@ -17,14 +17,6 @@ class LocalPath implements ProjectPathProviderInterface
     /**
      * @inheritdoc
      */
-    public function getProjectPath($name)
-    {
-        return sprintf('%s/%s', $this->path, $name);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function setPath($path)
     {
         if (!is_writable($path)) {
@@ -32,5 +24,21 @@ class LocalPath implements ProjectPathProviderInterface
         }
 
         $this->path = $path;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists($name)
+    {
+        return is_dir($this->getProjectPath($name));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getProjectPath($name)
+    {
+        return sprintf('%s/%s', $this->path, $name);
     }
 }

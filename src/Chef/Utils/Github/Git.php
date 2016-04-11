@@ -10,7 +10,7 @@ class Git
 {
     const CLONE_DEFAULT = 'git clone https://github.com/%s.git -q -b %s %s';
     const CLONE_AUTH    = 'git clone https://%s:%s@github.com/%s.git -q -b %s %s';
-    const CHECKOUT      = 'git fetch && git checkout origin/%s';
+    const CHECKOUT      = 'git fetch && git checkout -q origin/%s';
 
     /** @var LoggerInterface */
     private $logger;
@@ -59,14 +59,14 @@ class Git
             );
         }
 
-        $process = new Process($command);
+        $process = new Process($command, null, null, null, 15);
         $process->run();
 
         foreach (explode(PHP_EOL, $process->getErrorOutput()) as $line) {
             if (strlen($line) <= 0) {
                 continue;
             }
-            $this->logger->info(sprintf('Git: %s', $line));
+            $this->logger->info(sprintf('%s: %s', __NAMESPACE__, $line));
         }
 
         return $process->isSuccessful();
@@ -82,7 +82,8 @@ class Git
     {
         $process = new Process(
             sprintf(self::CHECKOUT, $revision),
-            $path
+            $path,
+            null, null, 15
         );
 
         $process->run();
@@ -91,7 +92,7 @@ class Git
             if (strlen($line) <= 0) {
                 continue;
             }
-            $this->logger->info(sprintf('Git: %s', $line));
+            $this->logger->info(sprintf('%s: %s', __NAMESPACE__, $line));
         }
 
         return $process->isSuccessful();

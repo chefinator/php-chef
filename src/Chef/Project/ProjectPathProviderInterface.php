@@ -7,6 +7,13 @@ interface ProjectPathProviderInterface
     /**
      * @param $name
      *
+     * @return bool
+     */
+    public function exists($name);
+
+    /**
+     * @param $name
+     *
      * @return mixed
      */
     public function getProjectPath($name);

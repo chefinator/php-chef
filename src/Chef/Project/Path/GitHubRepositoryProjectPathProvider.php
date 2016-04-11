@@ -5,6 +5,7 @@ namespace Chef\Project\Path;
 use Chef\Project\ProjectPathProviderInterface;
 use Chef\Utils\Github\RepositoryManager;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class GitHubRepositoryProjectPathProvider
@@ -28,9 +29,9 @@ class GitHubRepositoryProjectPathProvider implements ProjectPathProviderInterfac
     /** @var string */
     private $revision;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger = null)
     {
-        $this->logger = $logger;
+        $this->logger = $logger ?: new NullLogger();
     }
 
     /**
@@ -47,14 +48,25 @@ class GitHubRepositoryProjectPathProvider implements ProjectPathProviderInterfac
     /**
      * @inheritdoc
      */
-    public function getProjectPath($name)
+    public function exists($name)
     {
-        $path = sprintf('%s/%s', $this->path, str_replace('/', '-', $name));
+        $path = $this->getProjectPath($name);
 
+        $this->logger->info(sprintf('%s: Project Path %s', __NAMESPACE__, $path));
+
+        // Fetch & Clone the repo
         $git = new RepositoryManager($this->logger, $path, $name, $this->username, $this->token);
         $git->checkout($this->revision);
 
-        return $path;
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getProjectPath($name)
+    {
+        return sprintf('%s/%s', $this->path, str_replace('/', '-', $name));
     }
 
     /**
